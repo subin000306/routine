@@ -6,7 +6,7 @@ function Result5() {
 
     return (
         <>
-
+        <h2>5. 감성형 (Emotional Type):</h2>
         </>
     );
 };

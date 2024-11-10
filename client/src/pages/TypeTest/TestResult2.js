@@ -6,7 +6,7 @@ function Result2() {
 
     return (
         <>
-
+        <h2>2. 완벽주의형 (Perfectionist):</h2>
         </>
     );
 };

@@ -6,7 +6,7 @@ function Result1() {
 
     return (
         <>
-
+        <h2>1. 균형형 (Balanced Type):</h2>
         </>
     );
 };

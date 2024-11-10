@@ -6,7 +6,7 @@ function Result4() {
 
     return (
         <>
-
+        <h2>4. 사회적형 (Social Type):</h2>
         </>
     );
 };

@@ -1,0 +1,106 @@
+{
+    "types": [
+        {
+            "name": "Balanced Type",
+            "questions": [
+                {
+                    "a": "Do you prefer a strict separation between work and rest?",
+                    "b": "Do you feel comfortable mixing work and leisure throughout the day?"
+                },
+                {
+                    "a": "Are you more motivated by long-term success, even if it requires a slower pace?",
+                    "b": "Do you prefer to work hard at short-term goals, even if it means burning out occasionally?"
+                },
+                {
+                    "a": "When you have a lot going on, do you tend to take a step back and recalibrate?",
+                    "b": "Do you push to get a task done, regardless of your stress level?"
+                }
+            ]
+        },
+        {
+            "name": "Perfectionist",
+            "questions": [
+                {
+                    "a": "Do you often find yourself revising your work until it's perfect, even if it means missing a deadline?",
+                    "b": "Are you satisfied with ‘good enough’ results as long as you achieve your goal?"
+                },
+                {
+                    "a": "Do you feel uncomfortable when you overlook details, even the smallest ones?",
+                    "b": "Are minor flaws okay if the bigger picture is okay?"
+                },
+                {
+                    "a": "Do you prefer to make a thorough plan before starting a task?",
+                    "b": "Do you like to start working right away and make adjustments as you go?"
+                }
+            ]
+        },
+        {
+            "name": "Spontaneous Type",
+            "questions": [
+                {
+                    "a": "Do you prefer to stick to a planned schedule for the day?",
+                    "b": "Do you enjoy adjusting your day to fit your mood at the moment?"
+                },
+                {
+                    "a": "Do you feel more productive when your work is structured and routine?",
+                    "b": "Do you succeed when things are flexible and can change unexpectedly?"
+                },
+                {
+                    "a": "Do you feel anxious when things don't go as planned?",
+                    "b": "Do you see sudden change as an opportunity for creativity?"
+                }
+            ]
+        },
+        {
+            "name": "Social Type",
+            "questions": [
+                {
+                    "a": "Do you prefer working alone because it helps you focus?",
+                    "b": "Do you feel more energized when you collaborate with others?"
+                },
+                {
+                    "a": "Do you like solving problems independently?",
+                    "b": "Do you prefer brainstorming solutions with others?"
+                },
+                {
+                    "a": "Do you feel exhausted after a lot of social interaction?",
+                    "b": "Does socializing boost your energy after a long day?"
+                }
+            ]
+        },
+        {
+            "name": "Emotional Type",
+            "questions": [
+                {
+                    "a": "Are you able to focus on your work regardless of your emotional state?",
+                    "b": "Does your productivity often depend on your mood or emotions?"
+                },
+                {
+                    "a": "Do you tend to suppress your emotions to focus on work?",
+                    "b": "Do you need to express or process your emotions to be more productive?"
+                },
+                {
+                    "a": "Are you usually calm and steady even in stressful situations?",
+                    "b": "Do you often feel emotionally overwhelmed during stressful situations?"
+                }
+            ]
+        },
+        {
+            "name": "Goal-Oriented Type",
+            "questions": [
+                {
+                    "a": "Do you feel most satisfied when you achieve a specific goal?",
+                    "b": "Do you enjoy the journey more than the destination, regardless of the outcome?"
+                },
+                {
+                    "a": "Do you often set measurable goals?",
+                    "b": "Do you prefer things to progress naturally without strict goals?"
+                },
+                {
+                    "a": "Do you stay focused on your long-term goals even if they take a long time to achieve?",
+                    "b": "Do you tend to focus on short-term wins?"
+                }
+            ]
+        }
+    ]
+}

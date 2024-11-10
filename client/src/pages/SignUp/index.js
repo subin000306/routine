@@ -5,20 +5,22 @@ import { textColor, secondaryColor, tertiaryColor } from "../../styles/colors";
 import { MdEmail } from "react-icons/md";
 import { FaKey } from "react-icons/fa";
 
+
 const SignUp = () => {
     const [id, setId] = useState('');
     const [pw, setPw] = useState('');
+    const [name, setName] = useState(''); // Changed nickname to name
     const navigate = useNavigate();
 
     const submitBtn = async () => {
-        if (id === '' || pw === '') {
-            alert("아이디 또는 비밀번호를 입력해주시기 바랍니다");
+        if (id === '' || pw === '' || name === '') { // Check for name instead of nickname
+            alert("아이디, 비밀번호 또는 이름을 입력해주시기 바랍니다");
             return;
         } else {
             try {
                 const res = await fetch('/api/signup', {
                     method: 'POST',
-                    body: JSON.stringify({ userID: id, userPW: pw }),
+                    body: JSON.stringify({ userID: id, userPW: pw, userName: name }), // Changed userNickname to userName
                     credentials: 'include',
                     headers: { 'Content-Type': 'application/json' },
                 });
@@ -30,6 +32,7 @@ const SignUp = () => {
                 } else {
                     setId('');
                     setPw('');
+                    setName(''); // Reset name input on failure
                 }
             } catch (err) {
                 console.log(err);
@@ -64,6 +67,17 @@ const SignUp = () => {
                                 placeholder="PASSWORD"
                                 value={pw}
                                 onChange={(e) => setPw(e.target.value)}
+                            />
+                        </InputBox>
+                    </InputWrap>
+                    <InputWrap> {/* Changed label to Name */}
+                        <InputName>이름</InputName>
+                        <InputBox $hasError={name === ''}>
+                            <Input
+                                type="text"
+                                placeholder="NAME"
+                                value={name}
+                                onChange={(e) => setName(e.target.value)}
                             />
                         </InputBox>
                     </InputWrap>

@@ -28,7 +28,7 @@ const SignUp = () => {
 
                 alert(data);
                 if (res.status === 200) {
-                    navigate('/');
+                    navigate('/SignIn');
                 } else {
                     setId('');
                     setPw('');

@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { useNavigate } from "react-router-dom";
-import axios from 'axios';
 import userTypeData from '../../assets/data/userType.json';
 import styled from 'styled-components';
 
@@ -30,19 +29,9 @@ function TypeTest() {
                 setCurrentTypeIndex(nextTypeIndex);
                 setCurrentQuestionIndex(0);
             } else {
-                saveResultsToBackend(newAnswers);
-                navigate('/typetest/result');
                 localStorage.setItem('personalityTestResults', JSON.stringify(newAnswers));
+                navigate('/typetest/result');
             }
-        }
-    };
-
-    const saveResultsToBackend = async (results) => {
-        try {
-            const response = await axios.post('http://localhost:5000/save-results', { results });
-            console.log(response.data.message);
-        } catch (error) {
-            console.error('Error saving results:', error);
         }
     };
 

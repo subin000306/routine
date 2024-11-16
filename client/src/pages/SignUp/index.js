@@ -6,6 +6,7 @@ import { MdEmail } from "react-icons/md";
 import { FaKey } from "react-icons/fa";
 
 
+
 const SignUp = () => {
     const [id, setId] = useState('');
     const [pw, setPw] = useState('');

@@ -1,23 +1,16 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 
 function TestResult() {
-    const [results, setResults] = useState([]);
+    const [results, setResults] = useState({});
     const navigate = useNavigate();
 
     useEffect(() => {
-        const fetchResults = async () => {
-            try {
-                const response = await axios.get('http://localhost:5000/get-results');
-                setResults(response.data.results);
-            } catch (error) {
-                console.error('Error fetching results:', error);
-            }
-        };
-
-        fetchResults();
+        const savedResults = localStorage.getItem('personalityTestResults');
+        if (savedResults) {
+            setResults(JSON.parse(savedResults));
+        }
     }, []);
 
     const handleResultClick = (typeName) => {
@@ -40,28 +33,25 @@ function TestResult() {
         navigate('/typetest'); // Redirects to the quiz start page
     };
 
-    const displayResult = (result) => {
-        // Sorting the results based on their counts in descending order
-        const sortedResults = Object.entries(result)
+    const displayResults = () => {
+        // Sort and display results based on counts
+        const sortedResults = Object.entries(results)
             .sort(([, a], [, b]) => b - a)
             .map(([type, count]) => (
                 <ResultItem key={type} onClick={() => handleResultClick(type)}>
                     {type}: {count} times selected 'a' (Click for details)
                 </ResultItem>
             ));
-        return sortedResults;
+
+        return sortedResults.length > 0 ? sortedResults : <p>No matching types found.</p>;
     };
 
     return (
         <Wrap>
             <Wrap_container>
                 <h1>Test Results</h1>
-                {results.length > 0 ? (
-                    results.map((result, index) => (
-                        <div key={index}>
-                            {displayResult(JSON.parse(result.answers))}
-                        </div>
-                    ))
+                {Object.keys(results).length > 0 ? (
+                    <div>{displayResults()}</div>
                 ) : (
                     <div>
                         <p>No results found.</p>

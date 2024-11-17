@@ -1,6 +1,6 @@
 import React from "react";
 import styled from "styled-components";
-import ResultComponent from "../../components/ResultComponent";
+import ResultComponent from "./ResultComponent";
 import typeData from "../../assets/data/typeData.json"; // Ensure correct file path
 
 function Result2() {

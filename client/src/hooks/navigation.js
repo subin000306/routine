@@ -51,6 +51,9 @@ export function useNavigation() {
     const goToTestResult6 = () => {
         navigate("/typetest/result6");
     };
+    const goToPurposeInput = () => {
+        navigate("/purpose/input");
+    };
 
 
 
@@ -69,6 +72,7 @@ export function useNavigation() {
         goToTestResult3,
         goToTestResult4,
         goToTestResult5,
-        goToTestResult6
+        goToTestResult6,
+        goToPurposeInput
     };
 }

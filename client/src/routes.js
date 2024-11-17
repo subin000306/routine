@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import MainLayout from "./components/Layout/MainLayout";
 import Main from "./pages/Main";
 import Purpose from "./pages/Purpose";
+import PurposeInput from "./pages/Purpose/input.js";
 import Routine from "./pages/Routine";
 import TypeTest from "./pages/TypeTest";
 import TestResult from "./pages/TypeTest/TestResult.js";
@@ -31,6 +32,7 @@ const routes = () => {
                     <Route path="/typetest/result6" element={<TestResult6 />} />
                     <Route path="/routine" element={<Routine />} />
                     <Route path="/purpose" element={<Purpose />} />
+                    <Route path="/purpose/input" element={<PurposeInput />} />
                     <Route path="/mypage" element={<MyPage />} />
                     <Route path="/signin" element={<SignIn />} />
                     <Route path="/signup" element={<SignUp />} />

@@ -1,20 +1,55 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
+import axios from 'axios';
 
 function TestResult() {
     const [results, setResults] = useState({});
+    const [highestType, setHighestType] = useState('');
     const navigate = useNavigate();
 
     useEffect(() => {
         const savedResults = localStorage.getItem('personalityTestResults');
         if (savedResults) {
-            setResults(JSON.parse(savedResults));
+            const parsedResults = JSON.parse(savedResults);
+            const calculatedResults = calculateResults(parsedResults);
+            setResults(calculatedResults);
+
+            // Determine the type with the highest score
+            const determinedType = determineHighestType(calculatedResults);
+            setHighestType(determinedType);
+
+            // Send the result to backend
+            axios.post('https://your-backend-url.com/save-results', { type: determinedType })
+                .then(response => console.log('Results saved:', response.data))
+                .catch(error => console.error('Error saving results:', error));
         }
     }, []);
 
-    const handleResultClick = (typeName) => {
-        // Navigate to the corresponding result page based on typeName
+    const calculateResults = (scores) => {
+        const aggregatedScores = {};
+        for (const [type, scoresList] of Object.entries(scores)) {
+            const totalScore = scoresList.reduce((sum, score) => sum + score, 0);
+            aggregatedScores[type] = {
+                total: totalScore,
+                count5: scoresList.filter(score => score === 5).length,
+                count4: scoresList.filter(score => score === 4).length
+            };
+        }
+        return aggregatedScores;
+    };
+
+    const determineHighestType = (results) => {
+        // Sort by total score, then by count of 5s, then by count of 4s
+        const sortedTypes = Object.entries(results).sort(([, a], [, b]) => {
+            if (b.total !== a.total) return b.total - a.total;
+            if (b.count5 !== a.count5) return b.count5 - a.count5;
+            return b.count4 - a.count4;
+        });
+        return sortedTypes.length > 0 ? sortedTypes[0][0] : 'No matching type';
+    };
+
+    const handleResultClick = () => {
         const typePageMap = {
             'Balanced Type': '/typetest/result1',
             'Perfectionist': '/typetest/result2',
@@ -24,8 +59,8 @@ function TestResult() {
             'Goal-Oriented Type': '/typetest/result6'
         };
 
-        if (typePageMap[typeName]) {
-            navigate(typePageMap[typeName]);
+        if (typePageMap[highestType]) {
+            navigate(typePageMap[highestType]);
         }
     };
 
@@ -33,25 +68,14 @@ function TestResult() {
         navigate('/typetest'); // Redirects to the quiz start page
     };
 
-    const displayResults = () => {
-        // Sort and display results based on counts
-        const sortedResults = Object.entries(results)
-            .sort(([, a], [, b]) => b - a)
-            .map(([type, count]) => (
-                <ResultItem key={type} onClick={() => handleResultClick(type)}>
-                    {type}: {count} times selected 'a' (Click for details)
-                </ResultItem>
-            ));
-
-        return sortedResults.length > 0 ? sortedResults : <p>No matching types found.</p>;
-    };
-
     return (
         <Wrap>
             <Wrap_container>
                 <h1>Test Results</h1>
-                {Object.keys(results).length > 0 ? (
-                    <div>{displayResults()}</div>
+                {highestType ? (
+                    <div>
+                        <button onClick={handleResultClick}>{highestType}</button>
+                    </div>
                 ) : (
                     <div>
                         <p>No results found.</p>
@@ -72,14 +96,3 @@ const Wrap = styled.div`
 `;
 
 const Wrap_container = styled.div``;
-
-const ResultItem = styled.div`
-    cursor: pointer;
-    color: blue;
-    text-decoration: underline;
-    margin: 10px 0;
-
-    &:hover {
-        color: darkblue;
-    }
-`;

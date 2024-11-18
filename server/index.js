@@ -1,6 +1,5 @@
 const express = require('express');
 const cors = require('cors');
-const userRoutes = require('./UserRoutes');
 const db = require('./db'); // 모듈화된 DB 연결 코드 가져오기
 
 const app = express();
@@ -8,7 +7,11 @@ const port = 3000;
 
 
 // CORS 설정
-app.use(cors());
+app.use(cors({
+    origin: '*', // 모든 도메인 허용
+    methods: ['GET', 'POST'],
+    allowedHeaders: ['Content-Type'],
+}));
 app.use(express.json()); // JSON 형식의 요청 본문 파싱
 
 // 사용자 데이터를 가져오는 API
@@ -23,25 +26,40 @@ app.get('/api/users', (req, res) => {
     });
 });
 
+app.post('/api/addUser', (req, res) => {
+    console.log('POST /api/addUser 호출됨:', req.body);
+    const { userID, userPW, userName } = req.body;
 
-exports.signup = async (req, res) => {
+    const sql = 'INSERT INTO Test (User_name, ID, PW) VALUES (?, ?, ?)';
+    db.query(sql, [userName, userID, userPW], (err, result) => {
+        if (err) {
+            console.error('데이터베이스 오류:', err);
+            return res.status(500).json({ message: '데이터베이스 오류' });
+        }
+        res.status(200).json({ message: '회원가입 성공!' });
+    });
+});
+
+app.post('/api/loginCheck', (req, res) => {
+    console.log('POST /api/loginCheck 호출됨:', req.body);
     const { userID, userPW } = req.body;
 
-    try {
-        const getUser = await userDB.getUser(userID);
-        if (getUser.length) {
-            res.status(401).json('이미 존재하는 아이디입니다.');
-            return;
+    const sql = 'SELECT * FROM Test WHERE ID = ? AND PW = ?';
+    db.query(sql, [userID, userPW], (err, result) => {
+        if (err) {
+            console.error('로그인 쿼리 오류:', err);
+            return res.status(500).json({ message: '로그인 오류' });
         }
 
-        const hash = await textToHash(userPW);
-        const signUp = await userDB.signUp([userID, hash]);
-        res.status(200).json('가입 성공');
-    } catch (err) {
-        console.error(err);
-        res.status(500).json(err);
-    }
-};
+        if (result.length > 0) {
+            // 로그인 성공 
+            res.status(200).json({ message: '로그인 성공', user: result[0] });
+        } else {
+            res.status(401).json({ message: '아이디 또는 비밀번호가 일치하지 않습니다.' });
+        }
+    });
+});
+
 
 // 서버 실행
 app.listen(port, '0.0.0.0', () => {

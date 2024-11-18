@@ -2,24 +2,23 @@ import React, { useState } from 'react';
 import { useNavigate } from "react-router-dom";
 import userTypeData from '../../assets/data/userType.json';
 import styled from 'styled-components';
+import axios from 'axios';
 
 function TypeTest() {
     const navigate = useNavigate();
-    const [answers, setAnswers] = useState({});
+    const [scores, setScores] = useState({});
     const [currentTypeIndex, setCurrentTypeIndex] = useState(0);
     const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
 
-    const handleAnswer = (typeName, answer) => {
-        const newAnswers = { ...answers };
-        if (!newAnswers[typeName]) {
-            newAnswers[typeName] = 0;
+    const handleAnswer = (typeName, score) => {
+        const newScores = { ...scores };
+        if (!newScores[typeName]) {
+            newScores[typeName] = [];
         }
-        if (answer === 'a') {
-            newAnswers[typeName] += 1; // Increment score for type if 'a' is selected
-        }
-        setAnswers(newAnswers);
+        newScores[typeName].push(score); // Save the score for the answer
+        setScores(newScores);
 
-        // Move to next question or type
+        // Move to the next question or type
         const nextQuestionIndex = currentQuestionIndex + 1;
         if (nextQuestionIndex < userTypeData.types[currentTypeIndex].questions.length) {
             setCurrentQuestionIndex(nextQuestionIndex);
@@ -29,7 +28,8 @@ function TypeTest() {
                 setCurrentTypeIndex(nextTypeIndex);
                 setCurrentQuestionIndex(0);
             } else {
-                localStorage.setItem('personalityTestResults', JSON.stringify(newAnswers));
+                // Save results and navigate to result page
+                localStorage.setItem('personalityTestResults', JSON.stringify(newScores));
                 navigate('/typetest/result');
             }
         }
@@ -38,14 +38,23 @@ function TypeTest() {
     const currentType = userTypeData.types[currentTypeIndex];
     const currentQuestion = currentType.questions[currentQuestionIndex];
 
+    const renderScoreButtons = () => {
+        const scores = [1, 2, 3, 4, 5]; // Scores from 1 to 5
+        return scores.map(score => (
+            <StyledButton key={score} onClick={() => handleAnswer(currentType.name, score)}>
+                {score}
+            </StyledButton>
+        ));
+    };
+
     return (
         <Wrap>
             <Wrap_container>
-                <h1>Personality Test - {currentType.name}</h1>
+                <h1>Personality Test</h1>
                 {currentQuestion && (
                     <div>
-                        <button onClick={() => handleAnswer(currentType.name, 'a')}>{currentQuestion.a}</button>
-                        <button onClick={() => handleAnswer(currentType.name, 'b')}>{currentQuestion.b}</button>
+                        <p>{currentQuestion.a}</p>
+                        {renderScoreButtons()}
                     </div>
                 )}
             </Wrap_container>
@@ -62,3 +71,30 @@ const Wrap = styled.div`
 `;
 
 const Wrap_container = styled.div``;
+
+const StyledButton = styled.button`
+    background-color: #007BFF;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 15px;
+    margin: 5px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.2s;
+
+    &:hover {
+        background-color: #0056b3;
+        transform: scale(1.05);
+    }
+
+    &:active {
+        background-color: #004494;
+        transform: scale(0.98);
+    }
+
+    &:focus {
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.4);
+    }
+`;

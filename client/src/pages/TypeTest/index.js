@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import userTypeData from '../../assets/data/userType.json';
 import styled from 'styled-components';
 import axios from 'axios';
+import { primaryColor } from '../../styles/colors';
 
 function TypeTest() {
     const navigate = useNavigate();
@@ -73,7 +74,7 @@ const Wrap = styled.div`
 const Wrap_container = styled.div``;
 
 const StyledButton = styled.button`
-    background-color: #007BFF;
+    background-color: ${primaryColor};
     color: white;
     border: none;
     border-radius: 8px;

@@ -92,7 +92,7 @@ function Header() {
                     <SignButton onClick={() => handleNavigation("/signin")}>
                         로그인
                     </SignButton>
-                    {/* <SignButton>로그아웃</SignButton> */}
+                    <SignButton>로그아웃</SignButton>
                 </ButtonWrap>
             </HeaderWrap>
         </Wrap>
@@ -206,7 +206,7 @@ const ButtonWrap = styled.div`
 const LoginIcon = styled.img`
     width: 30px;
     height: 30px;
-    margin-right: -10px;
+    margin-right: 8px;
     
 `;
 

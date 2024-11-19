@@ -85,14 +85,25 @@ const StyledButton = styled.button`
     transition: background-color 0.3s, transform 0.2s;
 
     &:hover {
+<<<<<<< HEAD
         background-color: #ed776d;
+=======
+        background-color: #eb7366;
+>>>>>>> 1f0a39528cf885a6335b50d4faa8d124896ae519
         transform: scale(1.05);
     }
 
     &:active {
+<<<<<<< HEAD
         background-color: #910b00;
         transform: scale(0.98);
     }
 
 
+=======
+        background-color: #ebada7;
+        transform: scale(0.98);
+    }
+
+>>>>>>> 1f0a39528cf885a6335b50d4faa8d124896ae519
 `;

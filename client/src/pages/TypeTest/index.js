@@ -85,17 +85,14 @@ const StyledButton = styled.button`
     transition: background-color 0.3s, transform 0.2s;
 
     &:hover {
-        background-color: #0056b3;
+        background-color: #ed776d;
         transform: scale(1.05);
     }
 
     &:active {
-        background-color: #004494;
+        background-color: #910b00;
         transform: scale(0.98);
     }
 
-    &:focus {
-        outline: none;
-        box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.4);
-    }
+
 `;

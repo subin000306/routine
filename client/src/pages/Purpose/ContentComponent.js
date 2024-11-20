@@ -1,17 +1,20 @@
 // ContentComponent.js
 import React from "react";
 import styled from "styled-components";
-import { primaryColor } from '../../styles/colors';
+import { primaryColor } from "../../styles/colors";
 
-const Content = ({ header, items, onEdit, data }) => {
+const Content = ({ header, items, onEdit, onDelete, data }) => {
     return (
         <ContentWrapper>
             <Header>{header}</Header>
             <List>
-                {items.map((_, index) => (
+                {items.map((item, index) => (
                     <ListItem key={index}>
-                        <Number>{index + 1}</Number>
-                        <Placeholder>{data[index] || " "}</Placeholder> {/* Display data or empty space */}
+                        <Number>{item}</Number>
+                        <ValueContainer>
+                            <Placeholder>{data[index] || " "}</Placeholder> {/* Display data or empty space */}
+                            <DeleteButton onClick={() => onDelete(index)}>삭제</DeleteButton>
+                        </ValueContainer>
                     </ListItem>
                 ))}
             </List>
@@ -61,12 +64,28 @@ const Number = styled.div`
     margin-right: 10px;
 `;
 
+const ValueContainer = styled.div`
+    display: flex;
+    align-items: center;
+    flex: 1;
+`;
+
 const Placeholder = styled.div`
     flex: 1;
     padding: 10px;
     border: 1px solid #ccc;
     border-radius: 4px;
-    min-height: 20px; /* Adjust height as needed */
+    min-height: 20px;
+`;
+
+const DeleteButton = styled.button`
+    margin-left: 10px;
+    padding: 5px 10px;
+    background: gray;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
 `;
 
 const EditButton = styled.button`

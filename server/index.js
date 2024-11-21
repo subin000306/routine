@@ -8,9 +8,10 @@ const port = 3000;
 
 // CORS 설정
 app.use(cors({
-    origin: '*', // 모든 도메인 허용
-    methods: ['GET', 'POST'],
+    origin: 'http://localhost:3001', // 클라이언트 도메인
+    methods: ['GET', 'POST', 'DELETE'], // 허용할 메소드
     allowedHeaders: ['Content-Type'],
+    credentials: true // 클라이언트 쿠키 허용
 }));
 app.use(express.json()); // JSON 형식의 요청 본문 파싱
 
@@ -40,26 +41,85 @@ app.post('/api/addUser', (req, res) => {
     });
 });
 
-app.post('/api/loginCheck', (req, res) => {
-    console.log('POST /api/loginCheck 호출됨:', req.body);
+app.post('/api/loginCheck', async (req, res) => {
     const { userID, userPW } = req.body;
 
-    const sql = 'SELECT * FROM Test WHERE ID = ? AND PW = ?';
-    db.query(sql, [userID, userPW], (err, result) => {
+    try {
+        // 1. 세션 테이블 확인
+        const checkSessionSql = 'SELECT * FROM session';
+        db.query(checkSessionSql, (err, sessionResults) => {
+            if (err) {
+                console.error('세션 확인 쿼리 오류:', err);
+                return res.status(500).json({ message: '로그인 상태 확인 중 오류 발생' });
+            }
+
+            if (sessionResults.length > 0) {
+                // 세션이 존재하면 로그인을 차단
+                return res.status(400).json({ message: '이미 다른 계정으로 로그인되어 있습니다.' });
+            }
+
+            // 2. 아이디와 비밀번호 확인
+            const sql = 'SELECT * FROM Test WHERE ID = ? AND PW = ?';
+            db.query(sql, [userID, userPW], (err, result) => {
+                if (err) {
+                    console.error('로그인 쿼리 오류:', err);
+                    return res.status(500).json({ message: '로그인 오류' });
+                }
+
+                if (result.length > 0) {
+                    // 세션 테이블에 데이터 삽입
+                    const insertSessionSql = 'INSERT INTO session (user_id, user_name) VALUES (?, ?)';
+                    db.query(insertSessionSql, [userID, result[0].User_name], (err) => {
+                        if (err) {
+                            console.error('세션 저장 오류:', err);
+                            return res.status(500).json({ message: '세션 저장 오류' });
+                        }
+
+                        res.status(200).json({ message: '로그인 성공' });
+                    });
+                } else {
+                    res.status(401).json({ message: '아이디 또는 비밀번호가 일치하지 않습니다.' });
+                }
+            });
+        });
+    } catch (err) {
+        console.error('로그인 처리 중 오류:', err);
+        res.status(500).json({ message: '로그인 처리 중 문제가 발생했습니다.' });
+    }
+});
+
+app.get('/api/sessionCheck', (req, res) => {
+    const sql = 'SELECT * FROM session';
+    db.query(sql, (err, results) => {
         if (err) {
-            console.error('로그인 쿼리 오류:', err);
-            return res.status(500).json({ message: '로그인 오류' });
+            console.error('세션 확인 오류:', err);
+            return res.status(500).json({ message: '서버 오류로 인해 세션 확인에 실패했습니다.' });
         }
 
-        if (result.length > 0) {
-            // 로그인 성공 
-            res.status(200).json({ message: '로그인 성공', user: result[0] });
-        } else {
-            res.status(401).json({ message: '아이디 또는 비밀번호가 일치하지 않습니다.' });
+        if (results.length > 0) {
+            // 세션 테이블에 데이터가 존재하면 이미 로그인 상태
+            return res.status(200).json({ message: '이미 로그인 상태입니다.' });
         }
+
+        res.status(200).json({ message: '로그인 가능' });
     });
 });
 
+
+app.delete('/api/logout', (req, res) => {
+    // session 테이블의 모든 데이터를 삭제하는 쿼리
+    const deleteSessionQuery = 'DELETE FROM session';
+
+    db.query(deleteSessionQuery, (err, result) => {
+        if (err) {
+            console.error('session 테이블 삭제 오류:', err);
+            return res.status(500).json({ message: '서버 오류로 로그아웃 실패' });
+        }
+
+        // 로그아웃 성공 응답
+        res.status(200).json({ message: '로그아웃 성공, session 테이블 초기화 완료' });
+    });
+});
 
 // 서버 실행
 app.listen(port, '0.0.0.0', () => {

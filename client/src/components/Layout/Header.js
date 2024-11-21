@@ -30,6 +30,54 @@ function Header() {
         }
     };
 
+    const handleLogin = async () => {
+        try {
+            const response = await fetch("http://localhost:3000/api/sessionCheck", {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                credentials: "include", // 쿠키/세션 포함
+            });
+    
+            const result = await response.json();
+    
+            if (response.ok && result.message === '이미 로그인 상태입니다.') {
+                alert(result.message); // 이미 로그인 상태일 경우 알림
+            } else if (response.ok) {
+                // 로그인 가능하면 로그인 페이지로 이동
+                handleNavigation("/signin");
+            } else {
+                alert("로그인 상태 확인 중 오류가 발생했습니다.");
+            }
+        } catch (error) {
+            console.error("로그인 상태 확인 중 오류 발생:", error);
+            alert("로그인 상태 확인 중 오류가 발생했습니다.");
+        }
+    };
+
+    const handleLogout = async () => {
+        try {
+            const response = await fetch('http://localhost:3000/api/logout', {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
+    
+            if (response.ok) {
+                alert('로그아웃 성공');
+                navigation.goToHome(); // 메인 페이지로 이동
+            } else {
+                const result = await response.json();
+                alert(`로그아웃 실패: ${result.message}`);
+            }
+        } catch (error) {
+            console.error('로그아웃 중 오류 발생:', error);
+            alert('로그아웃 중 오류가 발생했습니다.');
+        }
+    };
+
     return (
         <Wrap>
             <HeaderWrap>
@@ -89,10 +137,8 @@ function Header() {
                 </NavWrap>
                 <ButtonWrap>
                     <LoginIcon src={login} alt="login" />
-                    <SignButton onClick={() => handleNavigation("/signin")}>
-                        로그인
-                    </SignButton>
-                    <SignButton>로그아웃</SignButton>
+                    <SignButton onClick={handleLogin}>로그인</SignButton>
+                    <SignButton onClick={handleLogout}>로그아웃</SignButton>
                 </ButtonWrap>
             </HeaderWrap>
         </Wrap>

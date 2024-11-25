@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigation } from "../../hooks/navigation";
 import styled from "styled-components";
+
 import { primaryColor, textColor, buttontextColor, secondaryColor } from "../../styles/colors";
 import login from "../../assets/img/login.png";
 import axios from 'axios';
@@ -118,16 +119,6 @@ function Header() {
                             isActive={currentPage === "test"}
                         >
                             유형검사
-                            <SecondUl>
-                                <SecondLi
-                                    onClick={() => handleNavigation("/typetest")}
-                                >
-                                    Test
-                                </SecondLi>
-                                <SecondLi
-                                    onClick={handleResultClick}>결과보기
-                        </SecondLi>
-                            </SecondUl>
                         </FirstLi>
                         <Divider />
                         <FirstLi
@@ -167,120 +158,91 @@ function Header() {
 
 export default Header;
 
+// Styled Components
 const Wrap = styled.div`
-    background-color: ${secondaryColor};
+  background-color: ${secondaryColor};
 `;
 
 const HeaderWrap = styled.header`
-    display: flex;
-    justify-content: space-between;
-    height: 90px;
-    width: 1280px;
-    margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  height: 90px;
+  width: 1280px;
+  margin: 0 auto;
 `;
 
 const NavWrap = styled.nav`
-    & li {
-        text-align: center;
-    }
+  & li {
+    text-align: center;
+  }
 `;
 
 const FirstUl = styled.ul`
-    display: flex;
-    align-items: center;
-    height: 100%;
+  display: flex;
+  align-items: center;
+  height: 100%;
 `;
 
-const FirstLi = styled(({ isClickable, isActive, ...rest }) => (
-    <li {...rest} />
-))`
-    display: flex;
-    align-items: center;
-    height: 100%;
-    position: relative;
-    padding: 0 30px;
-    cursor: ${({ isClickable }) => (isClickable ? "pointer" : "default")};
+const FirstLi = styled(({ isClickable, isActive, ...rest }) => <li {...rest} />)`
+  display: flex;
+  align-items: center;
+  height: 100%;
+  position: relative;
+  padding: 0 30px;
+  cursor: ${({ isClickable }) => (isClickable ? "pointer" : "default")};
 
-    &::before {
-        content: "";
-        position: absolute;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        height: 5px;
-        background: ${primaryColor};
-        transform: scaleX(0);
-        transform-origin: bottom right;
-        ${({ isActive }) =>
-            isActive &&
-            `
+  &::before {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 5px;
+    background: ${primaryColor};
+    transform: scaleX(0);
+    transform-origin: bottom right;
+    ${({ isActive }) =>
+      isActive &&
+      `
             transform: scaleX(1);
             transform-origin: bottom left;
         `}
-    }
+  }
 
-    &:hover {
-        &::before {
-            transform: scaleX(1);
-            transform-origin: bottom left;
-        }
+  &:hover {
+    &::before {
+      transform: scaleX(1);
+      transform-origin: bottom left;
     }
+  }
 `;
 
 const Divider = styled.div`
-    align-self: center;
-    width: 2px;
-    height: 2px;
-    background-color: #000;
-    border-radius: 50%;
-    margin: 0 10px;
-
-`;
-
-const SecondUl = styled.ul`
-    width: 150%;
-    position: absolute;
-    top: 100%;
-    left: 50%;
-    background: #fff;
-    visibility: hidden;
-    opacity: 0;
-    transform: translate(-50%, -10px);
-    transition: opacity 0.3s, transform 0.3s;
-
-    ${FirstLi}:hover & {
-        visibility: visible;
-        opacity: 1;
-        transform: translate(-50%, 0px);
-    }
-
-`;
-
-const SecondLi = styled.li`
-    padding: 15px 0;
-    cursor: pointer;
-
+  align-self: center;
+  width: 2px;
+  height: 2px;
+  background-color: #000;
+  border-radius: 50%;
+  margin: 0 10px;
 `;
 
 const ButtonWrap = styled.div`
-    display: flex;
-    align-items: center;
-    height: 100%;
-
+  display: flex;
+  align-items: center;
+  height: 100%;
 `;
 
 const LoginIcon = styled.img`
-    width: 30px;
-    height: 30px;
-    margin-right: 8px;
-    
+  width: 30px;
+  height: 30px;
+  margin-right: 8px;
 `;
 
 const SignButton = styled.button`
-    background-color: transparent;
-    color: ${textColor};
+  background-color: transparent;
+  color: ${textColor};
 
-    &:last-of-type {
-        margin-left: 20px;
-    }
+  &:last-of-type {
+    margin-left: 20px;
+  }
 `;

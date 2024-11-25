@@ -85,13 +85,11 @@ const StyledButton = styled.button`
     transition: background-color 0.3s, transform 0.2s;
 
     &:hover {
-
         background-color: #ed776d;
         transform: scale(1.05);
     }
 
     &:active {
-
         background-color: #910b00;
         transform: scale(0.98);
     }

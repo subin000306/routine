@@ -244,6 +244,7 @@
         }
       },
       {
+        "id":6,
         "type": "Goal-Oriented Type",
         "characteristics": [
             "명확한 목표가 있을 때 가장 큰 성과를 내지만, 목표가 없을 때는 쉽게 동기부여가 떨어집니다.",

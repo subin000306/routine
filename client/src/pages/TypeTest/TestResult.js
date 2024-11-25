@@ -9,6 +9,7 @@ function TestResult() {
     const navigate = useNavigate();
 
     useEffect(() => {
+        // 1. Fetch stored test results from localStorage
         const savedResults = localStorage.getItem('personalityTestResults');
         if (savedResults) {
             const parsedResults = JSON.parse(savedResults);
@@ -20,10 +21,10 @@ function TestResult() {
             setHighestType(determinedType);
 
             // Send the result to backend
-            axios.post('https://your-backend-url.com/save-results', { type: determinedType })
+            axios.post('http://localhost:3000/api/Usertype', { type: determinedType })
                 .then(response => console.log('Results saved:', response.data))
                 .catch(error => console.error('Error saving results:', error));
-        }
+        } 
     }, []);
 
     const calculateResults = (scores) => {

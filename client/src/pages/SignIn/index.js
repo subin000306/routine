@@ -16,7 +16,7 @@ const SignIn = () => {
         e.preventDefault();
     
         try {
-            const response = await fetch('http://localhost:3000/api/loginCheck', {
+            const response = await fetch('http://localhost:3000/api/Login', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

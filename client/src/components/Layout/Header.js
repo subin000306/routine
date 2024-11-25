@@ -2,7 +2,8 @@ import React, { useState, useEffect } from "react";
 import { useNavigation } from "../../hooks/navigation";
 import styled from "styled-components";
 import { primaryColor, textColor, buttontextColor, secondaryColor } from "../../styles/colors";
-import login from "../../assets/img/login.png"; 
+import login from "../../assets/img/login.png";
+import axios from 'axios';
 
 function Header() {
     const navigation = useNavigation();
@@ -32,7 +33,7 @@ function Header() {
 
     const handleLogin = async () => {
         try {
-            const response = await fetch("http://localhost:3000/api/sessionCheck", {
+            const response = await fetch("http://localhost:3000/api/LoginCheck", {
                 method: "GET",
                 headers: {
                     "Content-Type": "application/json",
@@ -64,17 +65,38 @@ function Header() {
                     'Content-Type': 'application/json',
                 },
             });
-    
+
+            const result = await response.json();
+            
             if (response.ok) {
-                alert('로그아웃 성공');
+                alert(result.message);
                 navigation.goToHome(); // 메인 페이지로 이동
             } else {
-                const result = await response.json();
                 alert(`로그아웃 실패: ${result.message}`);
             }
         } catch (error) {
             console.error('로그아웃 중 오류 발생:', error);
             alert('로그아웃 중 오류가 발생했습니다.');
+        }
+    };
+
+    const handleResultClick = async () => {
+        try {
+            const response = await axios.get('http://localhost:3000/api/getusertype', {
+                withCredentials: true,
+            });
+    
+            // API 응답에 따라 처리
+            if (response.data.userType) {
+                alert(`결과: ${response.data.userType}`);
+            } else {
+                alert(response.data.message || '결과를 확인할 수 없습니다.');
+            }
+        } catch (error) {
+            console.error('Error fetching result:', error);
+            alert('서버와 통신에 실패했습니다.');
+        } finally {
+            navigation.goToTestResult();
         }
     };
 
@@ -103,10 +125,8 @@ function Header() {
                                     Test
                                 </SecondLi>
                                 <SecondLi
-                                    onClick={() => handleNavigation("/typetest/result")}
-                                >
-                                    결과보기
-                                </SecondLi>
+                                    onClick={handleResultClick}>결과보기
+                        </SecondLi>
                             </SecondUl>
                         </FirstLi>
                         <Divider />

@@ -106,19 +106,20 @@ function Header() {
             <HeaderWrap>
                 <NavWrap>
                     <FirstUl>
-                    <FirstLi
-                            onClick={() => handleNavigation("/")}
-                            isClickable={true}
-                            isActive={currentPage === "home"}
+                        <FirstLi
+                                onClick={() => handleNavigation("/")}
+                                isClickable={true}
+                                isActive={currentPage === "home"}
+                            >
+                                홈
+                        </FirstLi>
+                        <Divider />
+                        <FirstLi
+                        onClick={() => handleNavigation("/typetest")}
+                        isClickable={true}
+                        isActive={currentPage === "test"}
                         >
-                            홈
-                    </FirstLi>
-                    <Divider />
-                    <FirstLi
-                            isClickable={false}
-                            isActive={currentPage === "test"}
-                        >
-                            유형검사
+                        유형검사
                         </FirstLi>
                         <Divider />
                         <FirstLi

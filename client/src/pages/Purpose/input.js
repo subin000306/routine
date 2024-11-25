@@ -1,10 +1,13 @@
+// input.js
 import React, { useState } from "react";
 import styled from "styled-components";
-import SideContent from './SideContentComponent';
-import { useNavigate } from 'react-router-dom';
+import SideContent from "./SideContentComponent";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
-function PurposeInput({ submitData }) {
-    const [formData, setFormData] = useState({ mainGoal: '', achievedList: '' });
+function PurposeInput() {
+    const [selectedNumber, setSelectedNumber] = useState(1); // Track the selected number
+    const [formData, setFormData] = useState({ mainGoal: "", achievedList: "" });
     const navigate = useNavigate();
 
     const handleChange = (e) => {
@@ -13,9 +16,12 @@ function PurposeInput({ submitData }) {
     };
 
     const handleSubmit = () => {
-        // Here you can call an API or handle data submission
-        submitData([formData.mainGoal, formData.achievedList]); // Pass data to the parent
-        navigate('/purpose'); // Navigate back to the purpose page
+        // Submit data to the server
+        axios.post("/api/purpose/update", { selectedNumber, ...formData })
+            .then(() => {
+                navigate("/purpose"); // Navigate back to the purpose page
+            })
+            .catch((error) => console.error("Error submitting purpose data:", error));
     };
 
     return (
@@ -23,6 +29,14 @@ function PurposeInput({ submitData }) {
             <RightSide>
                 <Form>
                     <Label>수정 페이지</Label>
+                    <SelectNumber>
+                        <label>번호 선택: </label>
+                        <select value={selectedNumber} onChange={(e) => setSelectedNumber(Number(e.target.value))}>
+                            <option value={1}>1</option>
+                            <option value={2}>2</option>
+                            <option value={3}>3</option>
+                        </select>
+                    </SelectNumber>
                     <Input
                         type="text"
                         name="mainGoal"
@@ -30,8 +44,7 @@ function PurposeInput({ submitData }) {
                         onChange={handleChange}
                         placeholder="Main Goal"
                     />
-                    <Input
-                        type="text"
+                    <Textarea
                         name="achievedList"
                         value={formData.achievedList}
                         onChange={handleChange}
@@ -77,10 +90,21 @@ const Label = styled.div`
     margin-bottom: 10px;
 `;
 
+const SelectNumber = styled.div`
+    margin-bottom: 10px;
+`;
+
 const Input = styled.input`
     padding: 10px;
     border: 1px solid #ccc;
     border-radius: 5px;
+`;
+
+const Textarea = styled.textarea`
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    height: 150px; /* 5x the height of a normal input */
 `;
 
 const SubmitButton = styled.button`

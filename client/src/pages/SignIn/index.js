@@ -14,30 +14,27 @@ const SignIn = () => {
 
     const loginSubmit = async (e) => {
         e.preventDefault();
-
+    
         try {
-            const response = await fetch('http://localhost:3000/api/loginCheck', {
+            const response = await fetch('http://localhost:3000/api/Login', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({ userID: id, userPW: pw }),
             });
-
+    
             if (!response.ok) {
-                // HTTP 상태 코드가 200이 아닌 경우
-                const errorData = await response.json();
-                console.error('로그인 실패:', errorData.message);
-                alert(errorData.message);
+                const result = await response.json();
+                alert(result.message); // 오류 메시지 표시
                 setId('');
                 setPw('');
                 return;
             }
-
+    
             const result = await response.json();
-            console.log('로그인 성공:', result.message);
-            alert(result.message);
-            navigate('/'); // 로그인 성공 시 메인 화면으로 이동
+            alert(result.message); // 로그인 성공 메시지
+            navigate('/'); // 메인 화면으로 이동
         } catch (error) {
             console.error('요청 중 오류 발생:', error);
             alert('로그인 요청 중 문제가 발생했습니다.');
@@ -45,6 +42,7 @@ const SignIn = () => {
             setPw('');
         }
     };
+    
 
     const moveSignUP = () => {
         navigate('/signup');

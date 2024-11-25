@@ -8,11 +8,19 @@ const port = 3000;
 
 // CORS 설정
 app.use(cors({
-    origin: '*', // 모든 도메인 허용
-    methods: ['GET', 'POST'],
+    origin: 'http://localhost:3001', // 클라이언트 도메인
+    methods: ['GET', 'POST', 'DELETE'], // 허용할 메소드
     allowedHeaders: ['Content-Type'],
+    credentials: true // 클라이언트 쿠키 허용
 }));
+
 app.use(express.json()); // JSON 형식의 요청 본문 파싱
+
+app.use('/api', require('./LOGIN'));
+app.use('/api', require('./LOGOUT'));
+app.use('/api', require('./LOGINCHECK'));
+app.use('/api', require('./SIGNUP'));
+app.use('/api', require('./USERTYPE'));
 
 // 사용자 데이터를 가져오는 API
 app.get('/api/users', (req, res) => {
@@ -25,41 +33,6 @@ app.get('/api/users', (req, res) => {
         res.json(result);  // 쿼리 결과를 JSON 형식으로 응답
     });
 });
-
-app.post('/api/addUser', (req, res) => {
-    console.log('POST /api/addUser 호출됨:', req.body);
-    const { userID, userPW, userName } = req.body;
-
-    const sql = 'INSERT INTO Test (User_name, ID, PW) VALUES (?, ?, ?)';
-    db.query(sql, [userName, userID, userPW], (err, result) => {
-        if (err) {
-            console.error('데이터베이스 오류:', err);
-            return res.status(500).json({ message: '데이터베이스 오류' });
-        }
-        res.status(200).json({ message: '회원가입 성공!' });
-    });
-});
-
-app.post('/api/loginCheck', (req, res) => {
-    console.log('POST /api/loginCheck 호출됨:', req.body);
-    const { userID, userPW } = req.body;
-
-    const sql = 'SELECT * FROM Test WHERE ID = ? AND PW = ?';
-    db.query(sql, [userID, userPW], (err, result) => {
-        if (err) {
-            console.error('로그인 쿼리 오류:', err);
-            return res.status(500).json({ message: '로그인 오류' });
-        }
-
-        if (result.length > 0) {
-            // 로그인 성공 
-            res.status(200).json({ message: '로그인 성공', user: result[0] });
-        } else {
-            res.status(401).json({ message: '아이디 또는 비밀번호가 일치하지 않습니다.' });
-        }
-    });
-});
-
 
 // 서버 실행
 app.listen(port, '0.0.0.0', () => {

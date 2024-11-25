@@ -8,10 +8,4 @@ const db = mysql.createPool({
     database : 'rutin'
 });
 
-
-conn.connect((err) => {
-    if (err) console.log(err);
-    else console.log('Connected to the database');
-});
-
 module.exports = db;

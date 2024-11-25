@@ -1,90 +1,159 @@
 import React, { useState, useEffect } from "react";
 import { useNavigation } from "../../hooks/navigation";
 import styled from "styled-components";
-import { primaryColor, textColor, secondaryColor } from "../../styles/colors";
+
+import { primaryColor, textColor, buttontextColor, secondaryColor } from "../../styles/colors";
 import login from "../../assets/img/login.png";
+import axios from 'axios';
 
 function Header() {
-  const navigation = useNavigation();
-  const [currentPage, setCurrentPage] = useState(null);
+    const navigation = useNavigation();
+    const [currentPage, setCurrentPage] = useState(null);
 
-  const routesMap = {
-    "/": { name: "home", action: navigation.goToHome },
-    "/purpose": { name: "purpose", action: navigation.goToPurpose },
-    "/routine": { name: "routine", action: navigation.goToRoutine },
-    "/typetest": { name: "test", action: navigation.goToTypeTest },
-    "/mypage": { name: "mypage", action: navigation.goToMypage },
-    "/signin": { name: "signin", action: navigation.goToSignIn },
-  };
+    const routesMap = {
+        "/": { name: "home", action: navigation.goToHome },
+        "/purpose": { name: "prupose", action: navigation.goToPurpose },
+        "/routine": { name: "routine", action: navigation.goToRoutine },
+        "/typetest": { name: "test", action: navigation.goToTypeTest },
+        "/typetest/result": { name: "test", action: navigation.goToTestResult },
+        "/mypage": { name: "mypage", action: navigation.goToMypage },
+        "/signin": { name: "signin", action: navigation.goToSignIn },
+    };
 
-  useEffect(() => {
-    setCurrentPage(routesMap[window.location.pathname]?.name || null);
-  }, []);
+    useEffect(() => {
+        setCurrentPage(routesMap[window.location.pathname]?.name || null);
+    }, []);
 
-  const handleNavigation = (path) => {
-    const route = routesMap[path];
-    if (route) {
-      route.action();
-      setCurrentPage(route.name);
-    }
-  };
+    const handleNavigation = (path) => {
+        const route = routesMap[path];
+        if (route) {
+            route.action();
+            setCurrentPage(route.name);
+        }
+    };
 
-  return (
-    <Wrap>
-      <HeaderWrap>
-        <NavWrap>
-          <FirstUl>
-            <FirstLi
-              onClick={() => handleNavigation("/")}
-              isClickable={true}
-              isActive={currentPage === "home"}
-            >
-              홈
-            </FirstLi>
-            <Divider />
-            <FirstLi
-              onClick={() => handleNavigation("/typetest")}
-              isClickable={true}
-              isActive={currentPage === "test"}
-            >
-              유형검사
-            </FirstLi>
-            <Divider />
-            <FirstLi
-              onClick={() => handleNavigation("/purpose")}
-              isClickable={true}
-              isActive={currentPage === "purpose"}
-            >
-              목적
-            </FirstLi>
-            <Divider />
-            <FirstLi
-              onClick={() => handleNavigation("/routine")}
-              isClickable={true}
-              isActive={currentPage === "routine"}
-            >
-              루틴
-            </FirstLi>
-            <Divider />
-            <FirstLi
-              onClick={() => handleNavigation("/mypage")}
-              isClickable={true}
-              isActive={currentPage === "mypage"}
-            >
-              마이페이지
-            </FirstLi>
-          </FirstUl>
-        </NavWrap>
-        <ButtonWrap>
-          <LoginIcon src={login} alt="login" />
-          <SignButton onClick={() => handleNavigation("/signin")}>
-            로그인
-          </SignButton>
-          <SignButton>로그아웃</SignButton>
-        </ButtonWrap>
-      </HeaderWrap>
-    </Wrap>
-  );
+    const handleLogin = async () => {
+        try {
+            const response = await fetch("http://localhost:3000/api/LoginCheck", {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                credentials: "include", // 쿠키/세션 포함
+            });
+    
+            const result = await response.json();
+    
+            if (response.ok && result.message === '이미 로그인 상태입니다.') {
+                alert(result.message); // 이미 로그인 상태일 경우 알림
+            } else if (response.ok) {
+                // 로그인 가능하면 로그인 페이지로 이동
+                handleNavigation("/signin");
+            } else {
+                alert("로그인 상태 확인 중 오류가 발생했습니다.");
+            }
+        } catch (error) {
+            console.error("로그인 상태 확인 중 오류 발생:", error);
+            alert("로그인 상태 확인 중 오류가 발생했습니다.");
+        }
+    };
+
+    const handleLogout = async () => {
+        try {
+            const response = await fetch('http://localhost:3000/api/logout', {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
+
+            const result = await response.json();
+            
+            if (response.ok) {
+                alert(result.message);
+                navigation.goToHome(); // 메인 페이지로 이동
+            } else {
+                alert(`로그아웃 실패: ${result.message}`);
+            }
+        } catch (error) {
+            console.error('로그아웃 중 오류 발생:', error);
+            alert('로그아웃 중 오류가 발생했습니다.');
+        }
+    };
+
+    const handleResultClick = async () => {
+        try {
+            const response = await axios.get('http://localhost:3000/api/getusertype', {
+                withCredentials: true,
+            });
+    
+            // API 응답에 따라 처리
+            if (response.data.userType) {
+                alert(`결과: ${response.data.userType}`);
+            } else {
+                alert(response.data.message || '결과를 확인할 수 없습니다.');
+            }
+        } catch (error) {
+            console.error('Error fetching result:', error);
+            alert('서버와 통신에 실패했습니다.');
+        } finally {
+            navigation.goToTestResult();
+        }
+    };
+
+    return (
+        <Wrap>
+            <HeaderWrap>
+                <NavWrap>
+                    <FirstUl>
+                    <FirstLi
+                            onClick={() => handleNavigation("/")}
+                            isClickable={true}
+                            isActive={currentPage === "home"}
+                        >
+                            홈
+                    </FirstLi>
+                    <Divider />
+                    <FirstLi
+                            isClickable={false}
+                            isActive={currentPage === "test"}
+                        >
+                            유형검사
+                        </FirstLi>
+                        <Divider />
+                        <FirstLi
+                            onClick={() => handleNavigation("/purpose")}
+                            isClickable={true}
+                            isActive={currentPage === "purpose"}
+                        >
+                            목적
+                        </FirstLi>
+                        <Divider />
+                        <FirstLi
+                            isClickable={true}
+                            onClick={() => handleNavigation("/routine")}
+                            isActive={currentPage === "routine"}
+                        >
+                            루틴
+                        </FirstLi>
+                        <Divider />
+                        <FirstLi
+                            isClickable={true}
+                            onClick={() => handleNavigation("/mypage")}
+                            isActive={currentPage === "mypage"}
+                        >
+                            마이페이지
+                        </FirstLi>
+                    </FirstUl>
+                </NavWrap>
+                <ButtonWrap>
+                    <LoginIcon src={login} alt="login" />
+                    <SignButton onClick={handleLogin}>로그인</SignButton>
+                    <SignButton onClick={handleLogout}>로그아웃</SignButton>
+                </ButtonWrap>
+            </HeaderWrap>
+        </Wrap>
+    );
 }
 
 export default Header;

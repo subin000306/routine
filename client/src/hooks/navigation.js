@@ -23,6 +23,10 @@ export function useNavigation() {
         navigate("/routine");
     };
 
+    const goToReview = () => {
+        navigate("/routine/review");
+    };
+
     const goToPurpose = () => {
         navigate("/purpose");
     };
@@ -64,6 +68,7 @@ export function useNavigation() {
         goToSignUp,
         goToMypage,
         goToRoutine,
+        goToReview,
         goToPurpose,
         goToTypeTest,
         goToTestResult,

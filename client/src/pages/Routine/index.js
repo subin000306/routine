@@ -1,104 +1,134 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import axios from "axios";
+import { secondaryColor, primaryColor, tertiaryColor } from "../../styles/colors";
 
 function Routine() {
-  const [tasks, setTasks] = useState([]);
+  const [tasks, setTasks] = useState(Array(10).fill(null)); // Maximum of 10 tasks
   const [inputValue, setInputValue] = useState("");
-  const [selectedType, setSelectedType] = useState("1"); // Default to "고정일정"
+  const [selectedType, setSelectedType] = useState("1"); // Default: Fixed Schedule
+  const [mainGoals, setMainGoals] = useState(["", "", ""]); // Main Goals
 
+  useEffect(() => {
+    // Fetch main goals from the server
+    axios
+      .get("/api/purpose")
+      .then((response) => {
+        if (response.data) {
+          const { mainGoal } = response.data;
+          setMainGoals(mainGoal.split(",").slice(0, 3).concat(Array(3).fill("")).slice(0, 3));
+        }
+      })
+      .catch((error) => console.error("Error fetching main goals:", error));
+  }, []);
+
+  // Task addition
   const handleAddTask = (e) => {
     if (e.key === "Enter" && inputValue.trim() !== "") {
-      const newTask = {
-        id: Date.now(),
-        type: selectedType,
-        content: inputValue,
-        completed: false,
-      };
-      setTasks((prev) => [...prev, newTask]);
-      setInputValue(""); // Clear input field
+      const emptyIndex = tasks.findIndex((task) => task === null);
+      if (emptyIndex !== -1) {
+        const newTask = {
+          id: Date.now(),
+          type: selectedType,
+          content: selectedType === "4" ? `${inputValue} ${"-".repeat(15)}` : inputValue,
+          completed: false,
+        };
+        const updatedTasks = [...tasks];
+        updatedTasks[emptyIndex] = newTask;
+        setTasks(updatedTasks);
+        setInputValue("");
+
+        // Save to server
+        axios.post("/api/routine", newTask).catch((err) => console.error("Error saving task:", err));
+      } else {
+        alert("최대 10개의 일정만 추가할 수 있습니다.");
+      }
     }
   };
 
-  const toggleTask = (id) => {
-    setTasks((prev) =>
-      prev.map((task) =>
-        task.id === id ? { ...task, completed: !task.completed } : task
-      )
-    );
+  // Toggle main일정 tasks
+  const toggleTask = (index) => {
+    const updatedTasks = [...tasks];
+    if (updatedTasks[index]?.type === "2") {
+      updatedTasks[index].completed = !updatedTasks[index].completed;
+      setTasks(updatedTasks);
+
+      // Update task status on the server
+      axios
+        .put(`/api/routine/${updatedTasks[index].id}`, { completed: updatedTasks[index].completed })
+        .catch((err) => console.error("Error updating task:", err));
+    }
   };
 
-  const deleteTask = (id) => {
-    setTasks((prev) => prev.filter((task) => task.id !== id));
+  // Delete tasks
+  const deleteTask = (index) => {
+    const updatedTasks = [...tasks];
+    const taskToDelete = updatedTasks[index];
+    updatedTasks[index] = null;
+    setTasks(updatedTasks);
+
+    // Delete from server
+    if (taskToDelete) {
+      axios.delete(`/api/routine/${taskToDelete.id}`).catch((err) => console.error("Error deleting task:", err));
+    }
   };
 
-  const resetTasks = () => {
-    setTasks([]);
-  };
+  // Calculate and send success rate to the server
+  const submitSuccessRate = () => {
+    const mainTasks = tasks.filter((task) => task?.type === "2");
+    const completedTasks = mainTasks.filter((task) => task.completed);
+    const successRate =
+      mainTasks.length > 0 ? Math.round((completedTasks.length / mainTasks.length) * 100) : 0;
 
-  const submitTasks = () => {
-    const filteredTasks = tasks.filter((task) => task.type !== "4");
-    const successRate = filteredTasks.length
-      ? (filteredTasks.filter((task) => task.completed).length /
-          filteredTasks.length) *
-        100
-      : 0;
-
+    // Send success rate to the server
     axios
-      .post("/api/review", { successRate, taskCount: filteredTasks.length })
-      .then(() => alert("Submitted successfully!"))
-      .catch((err) => console.error("Submission failed:", err));
+      .post("/api/successRate", { successRate })
+      .then(() => alert("Success rate has been submitted."))
+      .catch((err) => console.error("Error submitting success rate:", err));
   };
 
   return (
     <Container>
       <Header>
-        <h3>메인 목적</h3>
+        <Title>메인 목적</Title>
         <InputContainer>
-          <Input placeholder="1" />
-          <Input placeholder="2" />
-          <Input placeholder="3" />
+          {mainGoals.map((goal, index) => (
+            <Input key={index} value={goal} readOnly />
+          ))}
         </InputContainer>
       </Header>
-      <TimeBoxContainer>
-        <TimeBoxHeader>
+      <TimeBox>
+        <ButtonRow>
           <Button>Time-box</Button>
-          <Button onClick={resetTasks}>리셋</Button>
-          <Button onClick={submitTasks}>제출</Button>
-        </TimeBoxHeader>
-        <TaskList>
-          {tasks.map((task) => (
-            <Task
-              key={task.id}
-              completed={task.completed}
-              onClick={() => toggleTask(task.id)}
-            >
-              {task.content}
-              <DeleteButton onClick={(e) => { e.stopPropagation(); deleteTask(task.id); }}>🗑️</DeleteButton>
-            </Task>
-          ))}
-        </TaskList>
+          <Button onClick={() => setTasks(Array(10).fill(null))}>리셋</Button>
+          <Button onClick={submitSuccessRate}>제출</Button>
+        </ButtonRow>
+        {/* Task Addition */}
         <AddTaskContainer>
           <TaskTypeButton
             selected={selectedType === "1"}
+            color="#e0e0e0"
             onClick={() => setSelectedType("1")}
           >
             +고정일정
           </TaskTypeButton>
           <TaskTypeButton
             selected={selectedType === "2"}
+            color={primaryColor}
             onClick={() => setSelectedType("2")}
           >
             +main일정
           </TaskTypeButton>
           <TaskTypeButton
             selected={selectedType === "3"}
+            color={tertiaryColor}
             onClick={() => setSelectedType("3")}
           >
             +여유시간
           </TaskTypeButton>
           <TaskTypeButton
             selected={selectedType === "4"}
+            color="#555555"
             onClick={() => setSelectedType("4")}
           >
             +시간
@@ -110,7 +140,33 @@ function Routine() {
             onKeyDown={handleAddTask}
           />
         </AddTaskContainer>
-      </TimeBoxContainer>
+        <br />
+        <TaskList>
+          {tasks.map((task, index) => (
+            <Task
+              key={index}
+              onClick={() => toggleTask(index)}
+              completed={task?.completed}
+              color={task?.type === "2" && task.completed ? primaryColor : "#ffffff"}
+              textColor={task?.type === "2" && task.completed ? "#ffffff" : primaryColor}
+            >
+              {task && (
+                <>
+                  {task.content}
+                  <DeleteButton
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      deleteTask(index);
+                    }}
+                  >
+                    🗑️
+                  </DeleteButton>
+                </>
+              )}
+            </Task>
+          ))}
+        </TaskList>
+      </TimeBox>
     </Container>
   );
 }
@@ -119,21 +175,29 @@ export default Routine;
 
 // Styled Components
 const Container = styled.div`
-  width: 100%;
-  max-width: 800px;
-  margin: 0 auto;
   font-family: Arial, sans-serif;
+  width: 100%;
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 20px;
+  background-color: ${secondaryColor};
+  border-radius: 10px;
 `;
 
 const Header = styled.div`
-  background-color: #ffebe8;
-  padding: 10px;
+  background-color: ${primaryColor};
+  padding: 20px;
   border-radius: 10px;
+`;
+
+const Title = styled.h3`
+  color: #000;
+  margin: 0;
 `;
 
 const InputContainer = styled.div`
   display: flex;
-  gap: 5px;
+  gap: 10px;
   margin-top: 10px;
 `;
 
@@ -143,17 +207,17 @@ const Input = styled.input`
   font-size: 14px;
   border: 1px solid #ccc;
   border-radius: 5px;
+  background-color: #fff;
 `;
 
-const TimeBoxContainer = styled.div`
+const TimeBox = styled.div`
   margin-top: 20px;
   padding: 20px;
   background-color: #fff;
   border-radius: 10px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 `;
 
-const TimeBoxHeader = styled.div`
+const ButtonRow = styled.div`
   display: flex;
   justify-content: space-between;
   margin-bottom: 20px;
@@ -161,35 +225,35 @@ const TimeBoxHeader = styled.div`
 
 const Button = styled.button`
   padding: 10px 20px;
-  background-color: #ff6f61;
+  background-color: #333;
   color: #fff;
   border: none;
   border-radius: 5px;
   font-size: 14px;
-  cursor: pointer;
 
   &:hover {
-    background-color: #e65c51;
+    background-color: #555;
   }
 `;
 
 const TaskList = styled.div`
   display: flex;
-  flex-wrap: wrap;
+  flex-direction: column;
   gap: 10px;
-  margin-bottom: 20px;
 `;
 
 const Task = styled.div`
+  background-color: ${(props) => props.color  };
+  color: ${(props) => props.textColor};
+  border: 1px solid ${(props) =>
+    props.completed ? props.color : "#ccc"}; /* Border matches type color if completed */
+  height: 40px;
+  cursor: ${(props) => (props.type === "4" ? "default" : "pointer")}; /* 시간 is not clickable */
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  padding: 10px;
-  width: calc(50% - 10px);
-  background-color: ${(props) => (props.completed ? "#c8e6c9" : "#ffcdd2")};
-  border: 1px solid ${(props) => (props.completed ? "#81c784" : "#e57373")};
+  justify-content: space-between;
+  padding: 0 10px;
   border-radius: 5px;
-  cursor: pointer;
 `;
 
 const DeleteButton = styled.button`
@@ -200,24 +264,34 @@ const DeleteButton = styled.button`
 `;
 
 const AddTaskContainer = styled.div`
+  margin-top: 20px;
   display: flex;
   gap: 10px;
-  align-items: center;
 `;
 
 const TaskTypeButton = styled.button`
   padding: 5px 10px;
-  background-color: ${(props) => (props.selected ? "#ff6f61" : "#fff")};
-  color: ${(props) => (props.selected ? "#fff" : "#000")};
-  border: 1px solid #ccc;
+  font-size: 14px;
+  font-weight: bold;
+  color: ${(props) => (props.selected ? "#fff" : props.color)};
+  background-color: ${(props) => (props.selected ? props.color : "#fff")};
+  border: ${(props) =>
+    props.selected ? `2px solid ${props.color}` : "2px solid #cccccc"};
   border-radius: 5px;
   cursor: pointer;
+  transition: all 0.3s ease;
+
+  &:hover {
+    background-color: ${(props) => props.color};
+    color: #fff;
+  }
 `;
 
 const TaskInput = styled.input`
   flex: 1;
   padding: 10px;
+  font-size: 14px;
   border: 1px solid #ccc;
   border-radius: 5px;
-  font-size: 14px;
 `;
+

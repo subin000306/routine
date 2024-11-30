@@ -34,21 +34,29 @@ function Purpose() {
     };
 
     const handleDelete = (index) => {
-        // Delete data at the specific index
+        // Update the local state
         const updatedMainGoal = [...contentData.mainGoal];
         const updatedAchievedList = [...contentData.achievedList];
-
-        updatedMainGoal[index] = ""; // Clear the data for the corresponding number
-        updatedAchievedList[index] = ""; // Clear the data for the corresponding number
-
+      
+        updatedMainGoal[index] = ""; // Clear the data for the corresponding index
+        updatedAchievedList[index] = ""; // Clear the data for the corresponding index
+      
         setContentData({ mainGoal: updatedMainGoal, achievedList: updatedAchievedList });
-
-        // Optional: You can send the updated data to the server
-        axios.post("/api/purpose", {
+      
+        // Send updated data to the server
+        axios
+          .put("/api/purpose", {
             mainGoal: updatedMainGoal.join(","),
-            achievedList: updatedAchievedList.join(",")
-        });
-    };
+            achievedList: updatedAchievedList.join(","),
+          })
+          .then(() => {
+            console.log("Data successfully updated on the server.");
+          })
+          .catch((error) => {
+            console.error("Error updating purpose data:", error);
+            alert("An error occurred while updating the data. Please try again.");
+          });
+      };
 
     return (
         <Intro>

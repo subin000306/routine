@@ -12,21 +12,35 @@ function Purpose() {
     const [contentData, setContentData] = useState({ mainGoal: ["", "", ""], achievedList: ["", "", ""] });
 
     useEffect(() => {
-        // Fetch data from the server
         axios
-            .get("/api/purpose")
+            .get("http://localhost:3000/api/session") // 세션 확인 API
             .then((response) => {
-                if (response.data) {
-                    const { mainGoal, achievedList } = response.data;
-
-                    // Ensure only 3 items are shown, filling with empty strings if less than 3
+                if (response.data.user_id) {
+                    // 로그인된 상태: 데이터 로드
+                    axios
+                        .get(`http://localhost:3000/api/purposefetch?user_id=${response.data.user_id}`)
+                        .then((res) => {
+                            setContentData({
+                                mainGoal: res.data.mainGoals || ["", "", ""],
+                                achievedList: res.data.achievedLists || ["", "", ""],
+                            });
+                        })
+                        .catch((err) => console.error("데이터 로드 오류:", err));
+                } else {
+                    // 로그인되지 않은 상태: 빈 값 유지
                     setContentData({
-                        mainGoal: mainGoal.split(",").slice(0, 3).concat(Array(3).fill("")).slice(0, 3),
-                        achievedList: achievedList.split(",").slice(0, 3).concat(Array(3).fill("")).slice(0, 3)
+                        mainGoal: ["", "", ""],
+                        achievedList: ["", "", ""],
                     });
                 }
             })
-            .catch((error) => console.error("Error fetching purpose data:", error));
+            .catch((error) => {
+                console.error("세션 확인 오류:", error);
+                setContentData({
+                    mainGoal: ["", "", ""],
+                    achievedList: ["", "", ""],
+                });
+            });
     }, []);
 
     const handleEdit = () => {
@@ -34,29 +48,35 @@ function Purpose() {
     };
 
     const handleDelete = (index) => {
-        // Update the local state
-        const updatedMainGoal = [...contentData.mainGoal];
-        const updatedAchievedList = [...contentData.achievedList];
-      
-        updatedMainGoal[index] = ""; // Clear the data for the corresponding index
-        updatedAchievedList[index] = ""; // Clear the data for the corresponding index
-      
-        setContentData({ mainGoal: updatedMainGoal, achievedList: updatedAchievedList });
-      
-        // Send updated data to the server
+        const selectedNumber = index + 1; // index는 0부터 시작하므로 +1
         axios
-          .put("/api/purpose", {
-            mainGoal: updatedMainGoal.join(","),
-            achievedList: updatedAchievedList.join(","),
-          })
-          .then(() => {
-            console.log("Data successfully updated on the server.");
-          })
-          .catch((error) => {
-            console.error("Error updating purpose data:", error);
-            alert("An error occurred while updating the data. Please try again.");
-          });
-      };
+            .post("http://localhost:3000/api/purposedelete", {
+                user_id: "frost", // 로그인된 사용자의 ID를 사용해야 함
+                selectedNumber,
+            })
+            .then((response) => {
+                alert(response.data.message);
+    
+                // 상태 업데이트: 삭제된 데이터를 빈 문자열로 변경
+                setContentData((prev) => {
+                    const updatedMainGoal = [...prev.mainGoal];
+                    const updatedAchievedList = [...prev.achievedList];
+    
+                    updatedMainGoal[index] = ""; // 삭제된 타이틀 비우기
+                    updatedAchievedList[index] = ""; // 삭제된 컨텐츠 비우기
+    
+                    return {
+                        mainGoal: updatedMainGoal,
+                        achievedList: updatedAchievedList,
+                    };
+                });
+            })
+            .catch((error) => {
+                console.error("삭제 중 오류 발생:", error);
+                alert("삭제 중 문제가 발생했습니다.");
+            });
+    };
+    
 
     return (
         <Intro>

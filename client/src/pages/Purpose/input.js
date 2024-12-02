@@ -1,5 +1,5 @@
 // input.js
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import SideContent from "./SideContentComponent";
 import { useNavigate } from "react-router-dom";
@@ -8,51 +8,70 @@ import axios from "axios";
 function PurposeInput() {
     const [selectedNumber, setSelectedNumber] = useState(1); // Track the selected number
     const [formData, setFormData] = useState({ mainGoal: "", achievedList: "" });
-    const [userId, setUserId] = useState(null); // userId를 저장하는 상태 추가
     const navigate = useNavigate();
 
+    useEffect(() => {
+        axios
+            .get("http://localhost:3000/api/session") // 세션 확인 및 사용자 ID 가져오기
+            .then((sessionResponse) => {
+                const user_id = sessionResponse.data.user_id;
+    
+                if (user_id) {
+                    // 사용자 데이터 가져오기
+                    axios
+                        .get(`http://localhost:3000/api/purposefetch?user_id=${user_id}`)
+                        .then((response) => {
+                            const fetchedData = response.data;
+    
+                            // 선택된 번호에 따라 데이터 매핑
+                            setFormData({
+                                mainGoal: fetchedData.mainGoals[selectedNumber - 1] || "", // 데이터가 없으면 빈 문자열
+                                achievedList: fetchedData.achievedLists[selectedNumber - 1] || "", // 데이터가 없으면 빈 문자열
+                            });
+                        })
+                        .catch((error) => {
+                            console.error("목적 데이터 로드 실패:", error);
+                        });
+                } else {
+                    alert("로그인이 필요합니다. 로그인 페이지로 이동합니다.");
+                    navigate("/SignIn");
+                }
+            })
+            .catch((error) => {
+                console.error("세션 확인 중 오류 발생:", error);
+                alert("세션 확인 중 문제가 발생했습니다. 다시 시도해주세요.");
+            });
+    }, [selectedNumber]);
+    
     const handleChange = (e) => {
         const { name, value } = e.target;
-        setFormData({ ...formData, [name]: value });
-    };
-
-    const handleSubmit = async () => {
-        try {
-            console.log("formData 값 확인:", formData);
-            // Fetch the current session to get user_id
-            const sessionResponse = await axios.get("http://localhost:3000/api/session");
-            const user_id = sessionResponse.data.user_id;
-
-            if (!user_id) {
-                alert("로그인이 안되었어요!");
-                return;
-            }
-            // Check and call the API for mainGoal
-            if (formData.mainGoal) {
-                await axios.post("http://localhost:3000/api/purposeupdate", {
-                    user_id, // dynamic user_id from session
-                    selectedNumber, // the selected number from the dropdown
-                    content: formData.mainGoal, // the content of the main goal
-                });
-                console.log("Main Goal updated successfully");
-            }
+        setFormData((prevFormData) => ({
+          ...prevFormData,
+          [name]: value,
+        }));
+      };
     
-            // Check and call the API for achievedList
-            if (formData.achievedList) {
-                await axios.post("http://localhost:3000/api/achieveupdate", {
-                    user_id, // dynamic user_id from session
-                    selectedNumber, // the selected number from the dropdown
-                    content: formData.achievedList, // the content of the achieved list
-                });
-                console.log("Achieved List updated successfully");
-            }
+      // 제출 핸들러
+      const handleSubmit = () => {
+        const apiPayload = {
+            selectedNumber: selectedNumber, // 번호 선택
+            mainGoal: formData.mainGoal,   // 제목
+            achievedList: formData.achievedList, // 내용
+        };
     
-            // Navigate to another page after successful submission
-            navigate("/purpose");
-        } catch (error) {
-            console.error("Error submitting data:", error);
-            alert("데이터 전송 중 문제가 발생했습니다. 다시 시도해주세요.");
-        }
+        console.log("API Payload:", apiPayload);
+    
+        // 서버로 데이터 전송
+        axios
+            .post("http://localhost:3000/api/purposeupdate", apiPayload)
+            .then((response) => {
+                alert(response.data.message); // 서버 응답 메시지 표시
+                navigate("/purpose");
+            })
+            .catch((error) => {
+                console.error("API 요청 중 오류 발생:", error);
+                alert("데이터 저장 중 문제가 발생했습니다. 다시 시도해주세요.");
+            });
     };
 
     return (

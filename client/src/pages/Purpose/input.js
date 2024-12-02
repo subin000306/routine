@@ -8,6 +8,7 @@ import axios from "axios";
 function PurposeInput() {
     const [selectedNumber, setSelectedNumber] = useState(1); // Track the selected number
     const [formData, setFormData] = useState({ mainGoal: "", achievedList: "" });
+    const [userId, setUserId] = useState(null); // userId를 저장하는 상태 추가
     const navigate = useNavigate();
 
     const handleChange = (e) => {
@@ -15,13 +16,43 @@ function PurposeInput() {
         setFormData({ ...formData, [name]: value });
     };
 
-    const handleSubmit = () => {
-        // Submit data to the server
-        axios.post("/api/purpose/update", { selectedNumber, ...formData })
-            .then(() => {
-                navigate("/purpose"); // Navigate back to the purpose page
-            })
-            .catch((error) => console.error("Error submitting purpose data:", error));
+    const handleSubmit = async () => {
+        try {
+            console.log("formData 값 확인:", formData);
+            // Fetch the current session to get user_id
+            const sessionResponse = await axios.get("http://localhost:3000/api/session");
+            const user_id = sessionResponse.data.user_id;
+
+            if (!user_id) {
+                alert("로그인이 안되었어요!");
+                return;
+            }
+            // Check and call the API for mainGoal
+            if (formData.mainGoal) {
+                await axios.post("http://localhost:3000/api/purposeupdate", {
+                    user_id, // dynamic user_id from session
+                    selectedNumber, // the selected number from the dropdown
+                    content: formData.mainGoal, // the content of the main goal
+                });
+                console.log("Main Goal updated successfully");
+            }
+    
+            // Check and call the API for achievedList
+            if (formData.achievedList) {
+                await axios.post("http://localhost:3000/api/achieveupdate", {
+                    user_id, // dynamic user_id from session
+                    selectedNumber, // the selected number from the dropdown
+                    content: formData.achievedList, // the content of the achieved list
+                });
+                console.log("Achieved List updated successfully");
+            }
+    
+            // Navigate to another page after successful submission
+            navigate("/purpose");
+        } catch (error) {
+            console.error("Error submitting data:", error);
+            alert("데이터 전송 중 문제가 발생했습니다. 다시 시도해주세요.");
+        }
     };
 
     return (

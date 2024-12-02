@@ -290,17 +290,20 @@ const TaskTypeButton = styled.button`
   padding: 5px 10px;
   font-size: 14px;
   font-weight: bold;
-  color: ${(props) => (props.selected ? "#fff" : props.color)};
-  background-color: ${(props) => (props.selected ? props.color : "#fff")};
-  border: ${(props) =>
-    props.selected ? `2px solid ${props.color}` : "2px solid #cccccc"};
+  color: ${(props) => (props.selected ? props.color : "#fff")}; /* Selected: original color */
+  background-color: ${(props) => (props.selected ? "#fff" : props.color)}; /* Selected: white */
+  border: ${(props) => (props.selected ? `4px solid ${props.color}` : `2px solid ${props.color}`)}; /* Dynamic border color */
   border-radius: 5px;
   cursor: pointer;
   transition: all 0.3s ease;
 
   &:hover {
-    background-color: ${(props) => props.color};
-    color: #fff;
+    transform: scale(1.05); /* Slight zoom on hover */
+
+  }
+
+  &:active {
+    transform: scale(0.95); /* Slight shrink for tactile feedback */
   }
 `;
 

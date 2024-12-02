@@ -87,6 +87,22 @@ function Routine() {
       .catch((err) => console.error("Error submitting success rate:", err));
   };
 
+  const getTaskColor = (type, completed) => {
+    if (type === "1") return "#e0e0e0"; // Fixed Schedule (always light gray)
+    if (type === "3") return tertiaryColor; // Leisure Time (always tertiaryColor)
+    if (type === "4") return "#ffffff"; // Time (always white)
+    if (type === "2") return completed ? primaryColor : "#ffffff"; // Main (toggle)
+    return "#ffffff"; // Default white
+  };
+  
+  // Determine text color for each task type and state
+  const getTextColor = (type, completed) => {
+    if (type === "1" || type === "3") return "#ffffff"; // Fixed Schedule & Leisure Time (white text)
+    if (type === "4") return "#555555"; // Time (gray text)
+    if (type === "2") return completed ? "#ffffff" : primaryColor; // Main (toggle)
+    return "#000000"; // Default black
+  };
+
   return (
     <Container>
       <Header>
@@ -144,26 +160,27 @@ function Routine() {
         <TaskList>
           {tasks.map((task, index) => (
             <Task
-              key={index}
-              onClick={() => toggleTask(index)}
-              completed={task?.completed}
-              color={task?.type === "2" && task.completed ? primaryColor : "#ffffff"}
-              textColor={task?.type === "2" && task.completed ? "#ffffff" : primaryColor}
-            >
-              {task && (
-                <>
-                  {task.content}
-                  <DeleteButton
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      deleteTask(index);
-                    }}
-                  >
-                    🗑️
-                  </DeleteButton>
-                </>
-              )}
-            </Task>
+            key={index}
+            onClick={() => toggleTask(index)}
+            completed={task?.completed}
+            color={getTaskColor(task?.type, task?.completed)} // Use getTaskColor
+            textColor={getTextColor(task?.type, task?.completed)} // Use getTextColor
+            type={task?.type}
+          >
+            {task && (
+              <>
+                {task.content}
+                <DeleteButton
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    deleteTask(index);
+                  }}
+                >
+                  🗑️
+                </DeleteButton>
+              </>
+            )}
+          </Task>
           ))}
         </TaskList>
       </TimeBox>

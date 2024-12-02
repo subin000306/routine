@@ -81,26 +81,6 @@ function Header() {
         }
     };
 
-    const handleResultClick = async () => {
-        try {
-            const response = await axios.get('http://localhost:3000/api/getusertype', {
-                withCredentials: true,
-            });
-    
-            // API 응답에 따라 처리
-            if (response.data.userType) {
-                alert(`결과: ${response.data.userType}`);
-            } else {
-                alert(response.data.message || '결과를 확인할 수 없습니다.');
-            }
-        } catch (error) {
-            console.error('Error fetching result:', error);
-            alert('서버와 통신에 실패했습니다.');
-        } finally {
-            navigation.goToTestResult();
-        }
-    };
-
     return (
         <Wrap>
             <HeaderWrap>

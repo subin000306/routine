@@ -10,12 +10,15 @@ function MyPage() {
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        const response = await axios.get("/api/userInfo");
-        setUserData(response.data); // Expect { name, type }
+          const response = await axios.get("http://localhost:3000/api/userdata");
+          setUserData({
+              name: response.data.userName,
+              type: response.data.userType,
+          });
       } catch (error) {
-        console.error("Error fetching user data:", error);
+          console.error("Error fetching user data:", error);
       }
-    };
+  };
 
     const fetchReviews = async () => {
       try {

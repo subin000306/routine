@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import axios from "axios";
+import { secondaryColor } from '../../styles/colors';
 
 function MyPage() {
   const [userData, setUserData] = useState({ name: "", type: "" });
@@ -86,7 +87,6 @@ const Container = styled.div`
   padding: 20px;
   background-color: #fff;
   border-radius: 10px;
-  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
 `;
 
 const Header = styled.h1`

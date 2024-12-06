@@ -7,6 +7,7 @@ import spontaneousImage from '../../assets/img/Spontaneous.png';
 import socialImage from '../../assets/img/Social.png';
 import emotionalImage from '../../assets/img/Emotional.png';
 import goalOrientedImage from '../../assets/img/GoalOriented.png';
+import backgroundImage from "../../assets/img/testBackground.png";
 
 const typeImages = {
   "Balanced Type": balancedImage,
@@ -25,8 +26,8 @@ function ResultComponent({ title, characteristics, routineRecommendations, celeb
   const typeImage = typeImages[title] || null;
 
   return (
-    <Wrap>
-      <LeftBox>
+    <Background>
+      <ContentBox>
         <Header>{title}</Header>
         {typeImage && <Image src={typeImage} alt={`${title} image`} />}
         <StyledSection>
@@ -37,7 +38,6 @@ function ResultComponent({ title, characteristics, routineRecommendations, celeb
             ))}
           </Contents>
         </StyledSection>
-
         <StyledSection>
           <SectionTitle>루틴 추천</SectionTitle>
           <Contents>
@@ -48,15 +48,11 @@ function ResultComponent({ title, characteristics, routineRecommendations, celeb
             ))}
           </Contents>
         </StyledSection>
-      </LeftBox>
-
-      <RightBox>
         <StyledSection>
           <SectionTitle>유명인 예시</SectionTitle>
           <NameBox>{celebrityExample.name}</NameBox>
           <Contents>{celebrityExample.description}</Contents>
         </StyledSection>
-
         <StyledSection>
           <NameBox>루틴</NameBox>
           <Contents>
@@ -67,44 +63,48 @@ function ResultComponent({ title, characteristics, routineRecommendations, celeb
             ))}
           </Contents>
         </StyledSection>
-      </RightBox>
-    </Wrap>
+      </ContentBox>
+    </Background>
   );
 }
 
 export default ResultComponent;
 
-const Wrap = styled.div`
+// 스타일 정의
+const Background = styled.div`
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   justify-content: center;
-  align-items: flex-start;
+  align-items: center;
   width: 100%;
-  height: auto;
-  padding: 20px;
-  gap: 20px;
+  height: 80vh;
+  background-image: url(${backgroundImage});
+  background-size: cover;
+  background-position: center center;
 `;
 
-const LeftBox = styled.div`
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 30px;
+const ContentBox = styled.div`
+  width: 1000px;
+  height: 80%;
+  background-color: white;
   border: 1.5px solid ${primaryColor};
   border-radius: 10px;
-  background-color: #ffffff;
-`;
-
-const RightBox = styled.div`
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
   padding: 30px;
-  border: 1.5px solid ${primaryColor};
-  border-radius: 10px;
-  background-color: #ffffff;
+  overflow: auto; /* 내용만 스크롤 */
+  
+  /* 스크롤바 스타일 */
+  ::-webkit-scrollbar {
+    width: 10px;
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    background: rgba(220, 20, 60); /* 스크롤바 색상 */
+    border-radius: 10px; /* 스크롤바 둥근 테두리 */
+  }
+  
+  ::-webkit-scrollbar-track {
+    background: rgba(220, 20, 60, 0.1); /* 스크롤바 뒷 배경 색상 */
+  }
 `;
 
 const Header = styled.h1`
@@ -115,13 +115,14 @@ const Header = styled.h1`
   background-color: ${primaryColor};
   color: white;
   padding: 10px 0;
-  margin-top: 40px;
+  margin-bottom: 20px;
 `;
 
 const Image = styled.img`
   width: 200px;
   height: 200px;
-  margin: 60px;
+  margin: 20px auto;
+  display: block;
 `;
 
 const StyledSection = styled.div`
@@ -139,20 +140,19 @@ const SectionTitle = styled.h2`
   border-radius: 10px;
   display: flex;
   justify-content: center;
-  align-items: center; /* Vertically centers text */
+  align-items: center;
 `;
 
 const NameBox = styled.div`
   background-color: black;
   color: white;
-  width: 680px;
-  height: 35px;
-  padding: 10px 10px;
+  width: 100%;
+  height: auto;
+  padding: 10px;
   margin: 10px 0;
   border-radius: 2px;
-  display: flex;
   font-size: 16px;
-  align-items: center;
+  text-align: center;
 `;
 
 const Contents = styled.div`
@@ -161,9 +161,8 @@ const Contents = styled.div`
   padding: 10px;
   margin-top: 10px;
   border-radius: 10px;
-  text-align: left; /* Aligns text to the left */
   ul {
-    padding-left: 20px; /* Adds some indentation to the list */
+    padding-left: 20px;
   }
   li {
     font-weight: 300;
